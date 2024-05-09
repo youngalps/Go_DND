@@ -1,43 +1,37 @@
-package main
+package classes
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 )
 
-type Classes struct {
+type Class struct {
 	Index string `json:"index"`
 	Name  string `json:"name"`
 	URL   string `json:"url"`
 }
 
-func main() {
+func GetClasses() ([]Class, error) {
 	response, err := http.Get("https://www.dnd5eapi.co/api/classes")
-
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 	defer response.Body.Close()
 
 	responseData, err := ioutil.ReadAll(response.Body)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 
-	var classes []Classes
-	err = json.Unmarshal(responseData, &classes)
+	var responseObject struct {
+		Classes []Class `json:"results"`
+	}
+
+	err = json.Unmarshal(responseData, &responseObject)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 
-	for _, class := range classes {
-		fmt.Println(class.Index)
-		fmt.Println(class.Name)
-		fmt.Println(class.URL)
-		fmt.Println()
-	}
-
+	return responseObject.Classes, nil
 }
