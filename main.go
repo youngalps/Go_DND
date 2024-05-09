@@ -16,6 +16,7 @@ func main() {
 	fmt.Println("Enter your characters name")
 
 	// Read and set each stat
+	player.SetStatsFromInput()
 
 	// Display
 	fmt.Println("Character Name:", player.Name)
