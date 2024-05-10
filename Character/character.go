@@ -5,6 +5,9 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
+
+	classes "github.com/youngalps/Go_DND/Classes"
 )
 
 type Character struct {
@@ -19,17 +22,19 @@ type Character struct {
 	Charisma     int
 }
 
-func NewCharacter(name, class string) *Character {
-	return &Character{
-		Name:  name,
-		Class: class,
-	}
+func (c *Character) SetCharacterName(name string) {
+	c.Name = name
+}
+
+func (c *Character) SetCharacterClass(class string) {
+	c.Class = class
 }
 
 func (c *Character) SetLevel(level int) {
 	c.Level = level
 }
 
+// TODO: we are gonna make this done by roll
 func (c *Character) SetStats(strength, dexterity, constitution, intelligence, wisdom, charisma int) {
 	c.Strength = strength
 	c.Dexterity = dexterity
@@ -39,37 +44,53 @@ func (c *Character) SetStats(strength, dexterity, constitution, intelligence, wi
 	c.Charisma = charisma
 }
 
-// TODO move to a util folder
-func (c *Character) SetStatsFromInput() {
+func NewCharacter() *Character {
+	character := &Character{}                     // create a new character
+	availableClasses, err := classes.GetClasses() // available classes
+	if err != nil {
+		fmt.Println("Error getting classes")
+	}
+
+	character.SetLevel(1)
+
+	// read user input
 	reader := bufio.NewReader(os.Stdin)
 
-	fmt.Print("Enter Strength: ")
-	strengthStr, _ := reader.ReadString('\n')
-	strength, _ := strconv.Atoi(strengthStr)
-	c.Strength = strength
+	// *Player Name
+	fmt.Print("Enter Name: ")
+	name, _ := reader.ReadString('\n')
+	if name == "" {
+		fmt.Println("You must enter a name")
+	} else {
+		name = name[:len(name)-1]
+		character.Name = name
+	}
 
-	fmt.Print("Enter Dexterity: ")
-	dexterityStr, _ := reader.ReadString('\n')
-	dexterity, _ := strconv.Atoi(dexterityStr)
-	c.Dexterity = dexterity
+	//*Region Start
+	//* Class Selection
+	fmt.Println("Available Classes:")
+	for i, class := range availableClasses {
+		fmt.Printf("%d: %s\n", i+1, class.Name)
+	}
+	// prompt for class until valid one is chosen
+	for {
+		fmt.Print("Choose Class(enter the number): ")
+		classChoiceStr, _ := reader.ReadString('\n')
+		classChoiceStr = strings.TrimSpace(classChoiceStr)
+		classChoice, err := strconv.Atoi(classChoiceStr)
+		if err != nil {
+			fmt.Println("Invalid input. Please enter a number")
+			continue
+		}
 
-	fmt.Print("Enter Constitution: ")
-	constitutionStr, _ := reader.ReadString('\n')
-	constitution, _ := strconv.Atoi(constitutionStr)
-	c.Constitution = constitution
+		if classChoice < 1 || classChoice > len(availableClasses) {
+			fmt.Println("Invalid number. Please choose a number within the range.")
+			continue
+		}
+		character.Class = availableClasses[classChoice-1].Index
+		break
+	}
+	//*End Region Class Selection
+	return character
 
-	fmt.Print("Enter Intelligence: ")
-	intelligenceStr, _ := reader.ReadString('\n')
-	intelligence, _ := strconv.Atoi(intelligenceStr)
-	c.Intelligence = intelligence
-
-	fmt.Print("Enter Wisdom: ")
-	wisdomStr, _ := reader.ReadString('\n')
-	wisdom, _ := strconv.Atoi(wisdomStr)
-	c.Wisdom = wisdom
-
-	fmt.Print("Enter Charisma: ")
-	charismaStr, _ := reader.ReadString('\n')
-	charisma, _ := strconv.Atoi(charismaStr)
-	c.Charisma = charisma
 }
