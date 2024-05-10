@@ -1,25 +1,31 @@
 package main
 
 import (
-	"fmt"
+	"net/http"
 
-	character "github.com/youngalps/Go_DND/Character"
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
-	// player creation
+	router := gin.Default()
 
-	character := character.NewCharacter()
+	// Serve static files
+	router.Static("/static", "./static")
 
-	fmt.Println("Character Created:")
-	fmt.Printf("Name: %s\n", character.Name)
-	fmt.Printf("Class: %s\n", character.Class)
-	fmt.Printf("Level: %d\n", character.Level)
-	fmt.Printf("Strength: %d\n", character.Strength)
-	fmt.Printf("Dexterity: %d\n", character.Dexterity)
-	fmt.Printf("Constitution: %d\n", character.Constitution)
-	fmt.Printf("Intelligence: %d\n", character.Intelligence)
-	fmt.Printf("Wisdom: %d\n", character.Wisdom)
-	fmt.Printf("Charisma: %d\n", character.Charisma)
+	// Define your routes
 
+	// Route for serving the HTML file
+	router.GET("/", func(c *gin.Context) {
+		c.File("./static/index.html")
+	})
+
+	// Route for serving JSON response
+	router.GET("/api/data", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"message": "Welcome to your D&D API!",
+		})
+	})
+
+	// Start the server
+	router.Run(":8080")
 }
