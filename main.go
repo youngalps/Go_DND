@@ -8,6 +8,7 @@ import (
 
 func main() {
 	// player creation
+
 	character := character.NewCharacter()
 
 	fmt.Println("Character Created:")
